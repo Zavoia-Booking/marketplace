@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { registerAction, clearAuthErrorAction } from '../../features/auth/actions';
 import { Button } from '../../components/ui/button';
@@ -11,6 +11,7 @@ import GoogleSignInButton from '../../components/GoogleSignInButton';
 const RegisterPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
 
   const [firstName, setFirstName] = useState('');
@@ -27,12 +28,11 @@ const RegisterPage = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Clear errors when component unmounts
+  // Clear errors when component mounts or location changes
   useEffect(() => {
-    return () => {
-      dispatch(clearAuthErrorAction());
-    };
-  }, [dispatch]);
+    dispatch(clearAuthErrorAction());
+    setValidationError('');
+  }, [dispatch, location.pathname]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +107,11 @@ const RegisterPage = () => {
                   type="text"
                   placeholder="John"
                   value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  onChange={(e) => {
+                    setFirstName(e.target.value);
+                    if (error) dispatch(clearAuthErrorAction());
+                    setValidationError('');
+                  }}
                   disabled={isLoading}
                   required
                 />
@@ -119,7 +123,11 @@ const RegisterPage = () => {
                   type="text"
                   placeholder="Doe"
                   value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  onChange={(e) => {
+                    setLastName(e.target.value);
+                    if (error) dispatch(clearAuthErrorAction());
+                    setValidationError('');
+                  }}
                   disabled={isLoading}
                   required
                 />
@@ -133,7 +141,11 @@ const RegisterPage = () => {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) dispatch(clearAuthErrorAction());
+                  setValidationError('');
+                }}
                 disabled={isLoading}
                 required
               />
@@ -146,7 +158,11 @@ const RegisterPage = () => {
                 type="tel"
                 placeholder="+1 (555) 123-4567"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                  if (error) dispatch(clearAuthErrorAction());
+                  setValidationError('');
+                }}
                 disabled={isLoading}
                 required
               />
@@ -159,7 +175,11 @@ const RegisterPage = () => {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (error) dispatch(clearAuthErrorAction());
+                  setValidationError('');
+                }}
                 disabled={isLoading}
                 required
               />

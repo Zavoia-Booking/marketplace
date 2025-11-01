@@ -33,9 +33,9 @@ const VerifyAccountLinkPage = () => {
   const status: 'verifying' | 'success' | 'error' = 
     !token ? 'error' :
     !hasInitiated.current ? 'verifying' :
-    accountLinkVerifying ? 'verifying' :
     accountLinkVerifyError ? 'error' :
     accountLinkVerifySuccess ? 'success' :
+    accountLinkVerifying ? 'verifying' :
     'verifying';
   
   const errorMessage = accountLinkVerifyError;
@@ -96,13 +96,13 @@ const VerifyAccountLinkPage = () => {
           {status === 'success' && (
             <div className="text-center space-y-4">
               <p className="text-sm text-gray-600">
-                Marketplace access enabled successfully! You can now browse and book services on our marketplace.
+                Marketplace access enabled successfully! You can now log in to browse and book services on our marketplace.
               </p>
               <Button
-                onClick={handleGoHome}
+                onClick={() => navigate('/login', { replace: true })}
                 className="w-full bg-green-600 hover:bg-green-700"
               >
-                Home
+                Go to Login
               </Button>
             </div>
           )}

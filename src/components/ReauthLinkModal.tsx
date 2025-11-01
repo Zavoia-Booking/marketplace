@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useAppDispatch } from '../store/hooks';
+import { useState, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { reauthForLinkAction, closeAccountLinkingModal } from '../features/auth/actions';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -14,32 +14,36 @@ interface ReauthLinkModalProps {
 
 const ReauthLinkModal = ({ isOpen, onClose }: ReauthLinkModalProps) => {
   const dispatch = useAppDispatch();
+  const { linkingError, linkingLoading } = useAppSelector((state) => state.auth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [localError, setLocalError] = useState('');
 
   if (!isOpen) return null;
 
+  // Sync Redux error state to local error for display
+  useEffect(() => {
+    if (linkingError) {
+      setLocalError(linkingError);
+    } else {
+      setLocalError('');
+    }
+  }, [linkingError]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    try {
-      await dispatch(reauthForLinkAction.request({ email, password }));
-      // The saga will automatically proceed to link the Google account
-    } catch (err: any) {
-      setError(err?.message || 'Verification failed');
-    } finally {
-      setIsLoading(false);
-    }
+    setLocalError('');
+    
+    // Dispatch the action - errors will be handled via Redux state
+    dispatch(reauthForLinkAction.request({ email, password }));
+    // The saga will automatically proceed to link the Google account on success
+    // On failure, linkingError will be set in Redux and displayed via useEffect above
   };
 
   const handleClose = () => {
     setEmail('');
     setPassword('');
-    setError('');
+    setLocalError('');
     onClose();
   };
 
@@ -50,7 +54,7 @@ const ReauthLinkModal = ({ isOpen, onClose }: ReauthLinkModalProps) => {
           <button
             onClick={handleClose}
             className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
-            disabled={isLoading}
+            disabled={linkingLoading}
           >
             <X className="w-5 h-5" />
           </button>
@@ -64,9 +68,9 @@ const ReauthLinkModal = ({ isOpen, onClose }: ReauthLinkModalProps) => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
+            {localError && (
               <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                {error}
+                {localError}
               </div>
             )}
 
@@ -78,7 +82,7 @@ const ReauthLinkModal = ({ isOpen, onClose }: ReauthLinkModalProps) => {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
+                disabled={linkingLoading}
                 required
               />
             </div>
@@ -91,7 +95,7 @@ const ReauthLinkModal = ({ isOpen, onClose }: ReauthLinkModalProps) => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
+                disabled={linkingLoading}
                 required
               />
             </div>
@@ -102,16 +106,16 @@ const ReauthLinkModal = ({ isOpen, onClose }: ReauthLinkModalProps) => {
                 variant="outline"
                 onClick={handleClose}
                 className="flex-1"
-                disabled={isLoading}
+                disabled={linkingLoading}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
-                disabled={isLoading}
+                disabled={linkingLoading}
               >
-                {isLoading ? 'Verifying...' : 'Link Account'}
+                {linkingLoading ? 'Verifying...' : 'Link Account'}
               </Button>
             </div>
           </form>

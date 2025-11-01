@@ -25,8 +25,8 @@ export const sendAccountLinkApi = async (payload: { email: string }): Promise<{ 
   return data;
 };
 
-export const verifyAccountLinkApi = async (token: string): Promise<{ accessToken: string; csrfToken: string | null; user: AuthUser }> => {
-  const { data } = await apiClient().get<{ accessToken: string; csrfToken: string | null; user: AuthUser }>(`/marketplace/auth/verify-account-link?token=${token}`);
+export const verifyAccountLinkApi = async (token: string): Promise<{ message: string; user: AuthUser }> => {
+  const { data } = await apiClient().get<{ message: string; user: AuthUser }>(`/marketplace/auth/verify-account-link?token=${token}`);
   return data;
 };
 

@@ -161,13 +161,13 @@ function* handleVerifyAccountLink(action: ReturnType<typeof verifyAccountLinkAct
   try {
     const response = yield call(verifyAccountLinkApi, action.payload.token);
     
-    // Store tokens and user data (auto-login)
-    yield put(setTokensAction({ accessToken: response.accessToken, csrfToken: response.csrfToken }));
-    yield put(setAuthUserAction({ user: response.user }));
+    // Account link verified successfully - user needs to log in manually
+    // Don't auto-login - just confirm success
+    // Response structure: { message: string; user: AuthUser }
     yield put(verifyAccountLinkAction.success(response));
   } catch (error: any) {
     // Handle message as array or string
-    const rawMessage = error?.response?.data?.message || error?.message || "Failed to verify account link";
+    const rawMessage = error?.response?.data?.message || error?.response?.data?.error || error?.message || "Failed to verify account link";
     const message = Array.isArray(rawMessage) ? rawMessage[0] || rawMessage.join('. ') : rawMessage;
     yield put(verifyAccountLinkAction.failure({ message }));
   }
@@ -264,6 +264,19 @@ function* handleGoogleAuth(action: ReturnType<typeof googleAuthAction.request>):
       message = error.message;
     }
     
+    // Handle account exists but needs marketplace access (business owner wanting marketplace access)
+    if (error?.response?.status === 409 && code === 'account_exists_needs_marketplace_access') {
+      const errorData = error.response.data;
+      yield put(openAccountLinkModal({
+        firstName: errorData.details?.firstName || '',
+        lastName: errorData.details?.lastName || '',
+        email: errorData.details?.email || ''
+      }));
+      yield put(googleAuthAction.failure({ message: 'Account already exists' }));
+      return;
+    }
+    
+    // Handle account exists but Google is not linked yet
     if (code === 'account_exists_unlinked_google') {
       try { sessionStorage.setItem('linkContext', 'register'); } catch { /* empty */ }
       yield put(openAccountLinkingModal({ suggestedNext: details?.suggestedNext, txId: details?.tx_id }));
@@ -290,7 +303,18 @@ function* handleReauthForLink(action: ReturnType<typeof reauthForLinkAction.requ
     yield put(reauthForLinkAction.success({ proof: res.proof }));
     yield put(linkGoogleAction.request({ tx_id: txId, proof: res.proof }));
   } catch (error: any) {
-    const message = error?.response?.data?.error || error?.message || 'Verification failed';
+    let message = 'Verification failed';
+    
+    if (error?.response?.data?.message) {
+      // Handle array of messages or single message
+      const backendMessage = error.response.data.message;
+      message = Array.isArray(backendMessage) ? backendMessage[0] : backendMessage;
+    } else if (error?.response?.data?.error) {
+      message = error.response.data.error;
+    } else if (error?.message) {
+      message = error.message;
+    }
+    
     yield put(reauthForLinkAction.failure({ message }));
   }
 }

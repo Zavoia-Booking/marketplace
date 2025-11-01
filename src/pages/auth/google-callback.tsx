@@ -11,10 +11,11 @@ const GoogleCallbackPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { error, isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+  const { error, isAuthenticated, isLoading, isAccountLinkingModalOpen, isAccountLinkModalOpen } = useAppSelector((state) => state.auth);
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMessage, setErrorMessage] = useState('');
   const hasInitiated = useRef(false);
+  const modalWasOpenRef = useRef(false);
 
   useEffect(() => {
     // Prevent double execution
@@ -55,6 +56,34 @@ const GoogleCallbackPage = () => {
     }
   }, [dispatch, searchParams]);
 
+  // Track modal state to detect when it closes
+  useEffect(() => {
+    if (isAccountLinkingModalOpen) {
+      modalWasOpenRef.current = true;
+    } else if (modalWasOpenRef.current && !isAuthenticated) {
+      // Modal was open and is now closed - user cancelled the linking process
+      // Redirect based on OAuth mode
+      const mode = sessionStorage.getItem('oauthMode') || 'login';
+      const timeoutId = setTimeout(() => {
+        // Mark as completed to prevent further processing
+        hasInitiated.current = false;
+        modalWasOpenRef.current = false;
+        sessionStorage.removeItem('oauthMode');
+        sessionStorage.removeItem('oauthReturnTo');
+        sessionStorage.removeItem('linkContext');
+        
+        // Navigate based on mode
+        if (mode === 'register') {
+          navigate('/register', { replace: true });
+        } else {
+          navigate('/login', { replace: true });
+        }
+      }, 300);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isAccountLinkingModalOpen, isAuthenticated, navigate]);
+
   // Monitor Redux state for success/error
   useEffect(() => {
     if (!hasInitiated.current) return;
@@ -81,6 +110,7 @@ const GoogleCallbackPage = () => {
     // Check for success (authenticated and not loading)
     if (isAuthenticated && !isLoading && status === 'processing') {
       setStatus('success');
+      modalWasOpenRef.current = false; // Reset modal tracking on success
       
       // Redirect after a brief moment to show success
       const mode = sessionStorage.getItem('oauthMode') || 'login';
@@ -99,8 +129,13 @@ const GoogleCallbackPage = () => {
         }, 500);
       }
     }
-  }, [error, isAuthenticated, isLoading, status, navigate]);
+  }, [error, isAuthenticated, isLoading, status, navigate, isAccountLinkingModalOpen]);
 
+
+  // Don't render the callback screen if modals are open
+  if (isAccountLinkModalOpen || isAccountLinkingModalOpen) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 flex items-center justify-center p-4">

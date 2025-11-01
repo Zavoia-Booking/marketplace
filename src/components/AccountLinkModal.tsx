@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { sendAccountLinkAction } from '../features/auth/actions';
+import { sendAccountLinkAction, closeAccountLinkModal, clearAuthErrorAction } from '../features/auth/actions';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Mail, CheckCircle, ArrowLeft, AlertCircle } from 'lucide-react';
@@ -33,11 +33,23 @@ const AccountLinkModal = ({ isOpen, userDetails, onClose }: AccountLinkModalProp
 
   const handleDeny = () => {
     onClose();
-    // For registration, reload to reset form. For login, just close modal
-    if (!isLoginFlow) {
-      window.location.reload(); // Reset registration form
+    // Clear any auth errors when closing the modal
+    dispatch(clearAuthErrorAction());
+    
+    // Check OAuth mode to determine where to navigate
+    const oauthMode = sessionStorage.getItem('oauthMode') || 'login';
+    
+    // For registration flow (including Google registration), navigate to register page
+    if (!isLoginFlow || oauthMode === 'register') {
+      // Clear OAuth session data
+      sessionStorage.removeItem('oauthMode');
+      sessionStorage.removeItem('oauthReturnTo');
+      // Navigate to register page
+      navigate('/register', { replace: true });
+    } else {
+      // For login, just close - user stays on login page with form intact
+      // No navigation needed
     }
-    // For login, just close - user stays on login page with form intact
   };
 
   const handleUnderstood = () => {

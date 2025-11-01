@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { loginAction, clearAuthErrorAction } from '../../features/auth/actions';
 import { Button } from '../../components/ui/button';
@@ -11,6 +11,7 @@ import GoogleSignInButton from '../../components/GoogleSignInButton';
 const LoginPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
 
   const [email, setEmail] = useState('');
@@ -24,12 +25,11 @@ const LoginPage = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Clear errors when component unmounts or when navigating to register
+  // Clear errors when component mounts or location changes
   useEffect(() => {
-    return () => {
-      dispatch(clearAuthErrorAction());
-    };
-  }, [dispatch]);
+    dispatch(clearAuthErrorAction());
+    setValidationError('');
+  }, [dispatch, location.pathname]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,7 +103,11 @@ const LoginPage = () => {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (error) dispatch(clearAuthErrorAction());
+                    setValidationError('');
+                  }}
                   disabled={isLoading}
                   required
                 />
@@ -115,7 +119,11 @@ const LoginPage = () => {
                   type="password"
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) dispatch(clearAuthErrorAction());
+                    setValidationError('');
+                  }}
                   disabled={isLoading}
                   required
                 />

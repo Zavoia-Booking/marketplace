@@ -123,7 +123,7 @@ export const verifyAccountLinkAction = createAsyncAction(
   'auth/VERIFY_ACCOUNT_LINK_REQUEST',
   'auth/VERIFY_ACCOUNT_LINK_SUCCESS',
   'auth/VERIFY_ACCOUNT_LINK_FAILURE',
-)<{ token: string }, { accessToken: string; csrfToken: string | null; user: AuthUser }, { message: string }>();
+)<{ token: string }, { message: string; user: AuthUser }, { message: string }>();
 
 export const verifyEmailAction = createAsyncAction(
   'auth/VERIFY_EMAIL_REQUEST',
