@@ -32,9 +32,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['vite.svg', 'robots.txt'],
       manifest: {
-        name: 'Bookaroo Admin Dashboard',
-        short_name: 'Bookaroo Admin',
-        description: 'Admin dashboard for managing your Bookaroo business',
+        name: 'Zavoia Admin Dashboard',
+        short_name: 'Zavoia Admin',
+        description: 'Admin dashboard for managing your Zavoia business',
         theme_color: '#9333ea', // Purple brand color
         background_color: '#ffffff',
         display: 'standalone',
