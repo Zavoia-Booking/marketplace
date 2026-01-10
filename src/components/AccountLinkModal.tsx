@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { sendAccountLinkAction, closeAccountLinkModal, clearAuthErrorAction } from '../features/auth/actions';
+import { sendAccountLinkAction, clearAuthErrorAction } from '../features/auth/actions';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Mail, CheckCircle, ArrowLeft, AlertCircle } from 'lucide-react';

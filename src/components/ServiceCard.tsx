@@ -1,14 +1,9 @@
-import type { Service } from '../store/slices/servicesSlice';
 import { Card, CardContent, CardFooter, CardHeader } from "./ui/card"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
 import { Star, ArrowRight } from "lucide-react"
 
-interface ServiceCardProps {
-  service: Service;
-}
-
-const ServiceCard = ({ service }: ServiceCardProps) => {
+const ServiceCard = ({ service }: any) => {
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border-0 shadow-md">
       {/* Image Container */}

@@ -36,7 +36,7 @@ const SearchPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [searchRadius, setSearchRadius] = useState(20); // Default 20km radius
+  const [searchRadius, _] = useState(20); // Default 20km radius
   const [selectedIndustryId, setSelectedIndustryId] = useState<number | undefined>(undefined);
 
   // Get user's location on mount

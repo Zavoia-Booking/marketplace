@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { reauthForLinkAction, closeAccountLinkingModal } from '../features/auth/actions';
+import { reauthForLinkAction } from '../features/auth/actions';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
