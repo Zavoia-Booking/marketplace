@@ -1,3 +1,8 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/api/maintenance" }]
+  "rewrites": [
+    {
+      "source": "/((?!api).*)",
+      "destination": "/api/maintenance"
+    }
+  ]
 }
