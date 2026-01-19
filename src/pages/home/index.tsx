@@ -22,7 +22,7 @@ const HomePage = () => {
               Featured Services
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Discover and book services from top-rated businesses
+              Discover and book services from top-rated businesses test
             </p>
           </div>
 
