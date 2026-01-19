@@ -13,5 +13,6 @@ export default function handler(_req: VercelRequest, res: VercelResponse) {
   // Extra safety
   res.setHeader("X-Robots-Tag", "noindex, nofollow");
 
+
   res.send(html);
 }
