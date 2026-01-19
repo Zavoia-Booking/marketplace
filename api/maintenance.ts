@@ -1,18 +1,145 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import fs from "node:fs";
-import path from "node:path";
+
+const MAINTENANCE_HTML = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maintenance - We'll be back soon</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        color: #333;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 600px;
+        width: 100%;
+        padding: 60px 40px;
+        text-align: center;
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+        color: white;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      h1 {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: #1a1a1a;
+        line-height: 1.2;
+      }
+
+      p {
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
+
+      .details {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 30px;
+        border-left: 4px solid #667eea;
+      }
+
+      .details p {
+        font-size: 14px;
+        color: #555;
+        margin: 0;
+      }
+
+      @media (max-width: 640px) {
+        .container {
+          padding: 40px 24px;
+        }
+
+        h1 {
+          font-size: 28px;
+        }
+
+        p {
+          font-size: 16px;
+        }
+
+        .icon {
+          width: 100px;
+          height: 100px;
+          font-size: 50px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="icon">🔧</div>
+      <h1>We'll be back soon</h1>
+      <p>We're currently performing scheduled maintenance to improve your experience. We'll be back online shortly.</p>
+      <div class="details">
+        <p>Thank you for your patience. If you have any urgent questions, please contact our support team.</p>
+      </div>
+    </div>
+  </body>
+</html>`;
 
 export default function handler(_req: VercelRequest, res: VercelResponse) {
-  const filePath = path.join(process.cwd(), "public", "maintenance.html");
-  const html = fs.readFileSync(filePath, "utf8");
-
+  // Return 503 Service Unavailable - tells search engines it's temporary
   res.status(503);
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  // Helps crawlers understand it's temporary
+  // Helps crawlers understand it's temporary and when to retry
   res.setHeader("Retry-After", "3600"); // 1 hour
-  // Extra safety
+  // Extra safety for SEO - prevents indexing
   res.setHeader("X-Robots-Tag", "noindex, nofollow");
 
-
-  res.send(html);
+  res.send(MAINTENANCE_HTML);
 }
