@@ -1,8 +1,6 @@
 {
   "rewrites": [
-    { 
-      "source": "/((?!api|_next|assets|favicon.ico|robots.txt).*)",
-      "destination": "/api/maintenance"
-    }
+    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/:path*", "destination": "/api/maintenance" }
   ]
 }
